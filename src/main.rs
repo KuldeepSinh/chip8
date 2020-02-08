@@ -28,15 +28,15 @@ fn main() {
     machine.stack.cells.push(42);
     println!("{}", machine.pc);
 
-    for j in 0..machine.display.cells.len() {
-        machine.display.cells[j] = 1;
-        print!("{:2}", machine.display.cells[j]);
+    for j in 0..machine.vram.cells.len() {
+        machine.vram.cells[j] = 1;
+        print!("{:2}", machine.vram.cells[j]);
     }
     println!();
 
     machine.execute_instruction();
-    for j in 0..machine.display.cells.len() {
-        print!("{:2}", machine.display.cells[j]);
+    for j in 0..machine.vram.cells.len() {
+        print!("{:2}", machine.vram.cells[j]);
     }
     println!();
     //machine.pc = machine.stack.cells.pop().expect("error");

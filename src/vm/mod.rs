@@ -10,7 +10,7 @@ mod registers;
 mod stack;
 mod timers;
 
-use graphics::display::Display;
+use graphics::vram::VRam;
 use keyboard::KeyBoard;
 use memory::Memory;
 use operator::Operator;
@@ -19,7 +19,7 @@ use stack::Stack;
 use timers::Timers;
 
 pub struct Machine {
-    pub display: Display,
+    pub vram: VRam,
     pub keyboard: KeyBoard,
     pub memory: Memory,
     pub registers: Registers,
@@ -34,7 +34,7 @@ pub struct Machine {
 impl Machine {
     pub fn new() -> Machine {
         Machine {
-            display: Display::new(),
+            vram: VRam::new(),
             keyboard: KeyBoard::new(),
             memory: Memory::new(),
             registers: Registers::new(),

@@ -10,8 +10,8 @@ use rand::Rng;
 /// Explanation = Clears the screen.
 pub fn execute_00e0(machine: &mut Machine) {
     info!("[execute_00e0()] Clearing display.");
-    for j in 0..machine.display.cells.len() {
-        machine.display.cells[j] = 0;
+    for j in 0..machine.vram.cells.len() {
+        machine.vram.cells[j] = 0;
     }
     info!("[execute_00e0()] Cleared display.");
 }
