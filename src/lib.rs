@@ -3,4 +3,5 @@
 //! This program emulates CHIP-8 : an interpreted programming language, developed by Joseph Weisbecker. There are number of
 //! classic video games ported to CHIP-8, such as Pong, Space Inveders, Tetris and Pac-Man.
 
+pub mod drivers;
 pub mod vm;

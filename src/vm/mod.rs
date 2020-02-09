@@ -18,6 +18,9 @@ use registers::Registers;
 use stack::Stack;
 use timers::Timers;
 
+const VRAM_WIDTH: usize = 64;
+const VRAM_HEIGHT: usize = 32;
+
 pub struct Machine {
     pub vram: VRam,
     pub keyboard: KeyBoard,
@@ -34,7 +37,7 @@ pub struct Machine {
 impl Machine {
     pub fn new() -> Machine {
         Machine {
-            vram: VRam::new(),
+            vram: VRam::new(VRAM_WIDTH, VRAM_HEIGHT),
             keyboard: KeyBoard::new(),
             memory: Memory::new(),
             registers: Registers::new(),

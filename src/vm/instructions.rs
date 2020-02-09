@@ -10,8 +10,8 @@ use rand::Rng;
 /// Explanation = Clears the screen.
 pub fn execute_00e0(machine: &mut Machine) {
     info!("[execute_00e0()] Clearing display.");
-    let vram_height = machine.vram.cells.len() - 1;
-    let vram_width = machine.vram.cells[0].len() - 1;
+    let vram_height = machine.vram.cells.len();
+    let vram_width = machine.vram.cells[0].len();
     for h in 0..vram_height {
         for w in 0..vram_width {
             machine.vram.cells[h][w] = 0;

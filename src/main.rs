@@ -1,6 +1,7 @@
 extern crate env_logger;
 extern crate log;
 
+use chip8::drivers;
 use chip8::vm;
 
 fn main() {
@@ -28,10 +29,10 @@ fn main() {
     machine.stack.cells.push(42);
     println!("{}", machine.pc);
 
-    let width = machine.vram.cells[0].len() - 1;
-    println!("{}", width);
-    let height = machine.vram.cells.len() - 1;
-    println!("{}", height);
+    let height = machine.vram.cells.len();
+    println!("height = {}", height);
+    let width = machine.vram.cells[0].len();
+    println!("width = {}", width);
 
     for h in 0..height {
         for w in 0..width {
@@ -49,28 +50,38 @@ fn main() {
         }
     }
     println!();
-    //machine.pc = machine.stack.cells.pop().expect("error");
-    // machine.pc = 42;
-    // machine.stack.cells.push(1);
-    // machine.stack.cells.push(2);
-    // set_pc(&mut machine);
 
-    println!("{}", machine.pc);
+    let mut drivers = drivers::Drivers::new();
 
-    println!("{:?}", 127u8.overflowing_shr(1u32));
-    println!("{:?}", 127u8.overflowing_shl(1u32));
+    'running: loop {
+        drivers.display_driver.draw_canvas(&machine.vram.cells);
 
-    println!("{:b} {}", 3u8, 1u8 >> 7);
-    println!("{:b} {}", 4u8, 2u8 >> 7);
-
-    let mut i: u8 = 0;
-    while i < 255 {
-        print!("({:b},{}) ", i, i & 0x80);
-        i = i + 1;
+        // i = (i + 1) % 255;
+        // canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
+        // canvas.clear();
+        // for event in event_pump.poll_iter() {
+        //     match event {
+        //         Event::Quit {..} |
+        //         Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+        //             break 'running;
+        //         },
+        //         _ => {}
+        //     }
     }
-    println!();
-}
 
-// fn set_pc(machine: &mut vm::Machine) {
-//     machine.pc = machine.stack.cells.pop().expect("error");
-// }
+    //drivers.display_driver.canvas();
+    // println!("{}", machine.pc);
+
+    // println!("{:?}", 127u8.overflowing_shr(1u32));
+    // println!("{:?}", 127u8.overflowing_shl(1u32));
+
+    // println!("{:b} {}", 3u8, 1u8 >> 7);
+    // println!("{:b} {}", 4u8, 2u8 >> 7);
+
+    // let mut i: u8 = 0;
+    // while i < 255 {
+    //     print!("({:b},{}) ", i, i & 0x80);
+    //     i = i + 1;
+    // }
+    // println!();
+}
