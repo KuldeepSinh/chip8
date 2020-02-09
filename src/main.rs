@@ -19,10 +19,16 @@ fn main() {
     // }
 
     let machine = vm::Machine::new();
-    let mut drivers = drivers::Drivers::new();
+    let mut drivers = drivers::Drivers::new("./ROMs/UFO");
     drivers.display_driver.draw_canvas(&machine.vram.cells);
 
+    //while true
     while let Ok(_keypad) = drivers.input_driver.process_events() {
+        //process input
+
+        //update
+
+        //render
         //sleep 60 frames per second
         thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
