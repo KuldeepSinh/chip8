@@ -28,15 +28,25 @@ fn main() {
     machine.stack.cells.push(42);
     println!("{}", machine.pc);
 
-    for j in 0..machine.vram.cells.len() {
-        machine.vram.cells[j] = 1;
-        print!("{:2}", machine.vram.cells[j]);
+    let width = machine.vram.cells[0].len() - 1;
+    println!("{}", width);
+    let height = machine.vram.cells.len() - 1;
+    println!("{}", height);
+
+    for h in 0..height {
+        for w in 0..width {
+            machine.vram.cells[h][w] = 1;
+            print!("{:2}", machine.vram.cells[h][w]);
+        }
     }
     println!();
 
+    println!("Executing instructions.");
     machine.execute_instruction();
-    for j in 0..machine.vram.cells.len() {
-        print!("{:2}", machine.vram.cells[j]);
+    for h in 0..height {
+        for w in 0..width {
+            print!("{:2}", machine.vram.cells[h][w]);
+        }
     }
     println!();
     //machine.pc = machine.stack.cells.pop().expect("error");
