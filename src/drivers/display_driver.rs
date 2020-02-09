@@ -47,7 +47,7 @@ impl DisplayDriver {
 
         //make window
         let window = video_subsystem
-            .window("CHIP-8 VM made with Rust", width as u32, height as u32)
+            .window("CHIP-8 VM; made with Rust", width as u32, height as u32)
             .position_centered()
             .opengl()
             .build()
@@ -61,11 +61,6 @@ impl DisplayDriver {
             .into_canvas()
             .build()
             .expect("Error: Could not build canvas.");
-        // //draw canvas
-        // canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
-        // canvas.clear();
-        // canvas.present();
-        //return
         canvas
     }
     fn get_color(pixel: &u8) -> pixels::Color {
