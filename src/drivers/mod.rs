@@ -14,9 +14,10 @@ pub struct Drivers {
 }
 
 impl Drivers {
-    pub fn new(filename: &str) -> Drivers {
+    pub fn init_drivers(filename: &str) -> Drivers {
         let sdl_context = Drivers::init_sdl_context();
         let display_driver = Drivers::init_display_driver(&sdl_context);
+        //return
         Drivers {
             display_driver: display_driver,
             input_driver: InputDriver::new(&sdl_context),

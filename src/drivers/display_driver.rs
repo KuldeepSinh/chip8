@@ -13,7 +13,11 @@ pub struct DisplayDriver {
 impl DisplayDriver {
     pub fn new(sdl_context: &sdl2::Sdl, width: usize, height: usize) -> Self {
         //get window
-        let window = DisplayDriver::get_window(sdl_context, width, height);
+        let window = DisplayDriver::get_window(
+            sdl_context,
+            width * (SCALE_FACTOR as usize),
+            height * (SCALE_FACTOR as usize),
+        );
         //get canvas
         let canvas = DisplayDriver::get_canvas(window);
         //return

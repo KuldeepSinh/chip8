@@ -19,7 +19,7 @@ fn main() {
     // }
 
     let machine = vm::Machine::new();
-    let mut drivers = drivers::Drivers::new("./ROMs/UFO");
+    let mut drivers = drivers::Drivers::init_drivers("./ROMs/UFO");
     drivers.display_driver.draw_canvas(&machine.vram.cells);
 
     //while true

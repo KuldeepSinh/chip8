@@ -1,8 +1,6 @@
 //! The `VRAM` of the Chip 8 are black and white and the screen has a total of 2048 pixels (64 x 32).
 //! This can easily be implemented using a vector that hold the pixel state (1 or 0).
 
-/// VRAM_SIZE constant ( = 2048) represents size of the CHIP-8 VRAM unit.
-
 #[derive(Debug)]
 pub struct VRam {
     pub cells: Vec<Vec<u8>>,

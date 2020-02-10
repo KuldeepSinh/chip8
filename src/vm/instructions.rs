@@ -211,12 +211,28 @@ pub fn execute_cxnn(machine: &mut Machine, operator: &Operator) {
 
 /// `instructions::execute_cxnn()`
 /// Type = Display
-/// Explanation = Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels.
+/// Explanation = Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N (1-15) pixels.
 /// Each row of 8 pixels is read as bit-coded starting from memory location I;
 /// I value doesn’t change after the execution of this instruction.
-/// As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn,
-/// and to 0 if that doesn’t happen .
-pub fn execute_dxyn(machine: &mut Machine, operator: &Operator) {}
+/// Sprite pixels are XOR'd with corresponding screen pixels.
+/// In other words, sprite pixels that are set flip the color of the corresponding screen pixel,
+/// while unset sprite pixels do nothing.
+/// The carry flag (VF) is set to 1 if any screen pixels are flipped from set to unset when a sprite is drawn
+/// and set to 0 otherwise. This is used for collision detection.
+pub fn execute_dxyn(machine: &mut Machine, operator: &Operator) {
+    let vram_height = machine.vram.cells.len();
+    let vram_width = machine.vram.cells[0].len();
+    machine.registers.v[0xF] = 0;
+    for byte in 0..operator.n_const {
+        let y = (machine.registers.v[operator.y] as usize + byte as usize) % vram_height;
+        for bit in 0..8 {
+            let x = (machine.registers.v[operator.x] as usize + bit as usize) % vram_width;
+            let color = machine.memory.cells[machine.i as usize + byte as usize] >> (7 - bit) & 1;
+            machine.registers.v[0xF] |= color & machine.vram.cells[y][x];
+            machine.vram.cells[y][x] ^= color;
+        }
+    }
+}
 
 /// `instructions::execute_ex9e()`
 /// Type = KeyOp
@@ -257,7 +273,9 @@ pub fn execute_fx07(machine: &mut Machine, operator: &Operator) {
 /// Type = KeyOp
 /// Explanation = A key press is awaited, and then stored in VX.
 /// (Blocking Operation. All instruction halted until next key event)
-pub fn execute_fx0a(machine: &mut Machine, operator: &Operator) {}
+pub fn execute_fx0a(machine: &mut Machine, operator: &Operator) {
+    //machine.keyboard.
+}
 
 /// `instructions::execute_fx15()`
 /// Type = Timer
