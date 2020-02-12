@@ -24,6 +24,17 @@ impl Memory {
         memory
     }
 
+    pub fn load_data(&mut self, data: &[u8]) {
+        for (i, &byte) in data.iter().enumerate() {
+            let addr = 0x200 + i;
+            if addr < 4096 {
+                self.cells[addr] = byte;
+            } else {
+                break;
+            }
+        }
+    }
+
     /// `Memory.set_fonts()` populates fontset in the memory.
     /// Mainly, it loads predefined FontSet (graphics::Fontset), into its first 80 cells.
     fn set_fonts(&mut self) {
