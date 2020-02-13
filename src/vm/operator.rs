@@ -1,4 +1,6 @@
 use crate::vm::Machine;
+use log::debug;
+
 type OpCode = u16;
 
 pub struct Operator {
@@ -39,6 +41,10 @@ impl Operator {
 }
 
 fn extract_opcode(machine: &Machine) -> OpCode {
+    debug!(
+        "[extract_opcode()] Trying to extract opcode at pc = {}.",
+        machine.pc
+    );
     (machine.memory.cells[machine.pc as usize] as u16) << 8
         | (machine.memory.cells[(machine.pc + 1) as usize] as u16)
 }

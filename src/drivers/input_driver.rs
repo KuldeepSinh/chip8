@@ -1,3 +1,4 @@
+use log::debug;
 use sdl2;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -15,9 +16,10 @@ impl InputDriver {
         }
     }
 
-    pub fn process_events(&mut self) -> Result<[bool; 16], ()> {
+    pub fn process_events(&mut self) -> Result<Vec<bool>, ()> {
         //Quit if user wants to quit
         for event in self.event_pump.poll_iter() {
+            debug!("[InputDriver.process_events()] Started processing events.");
             match event {
                 Event::Quit { .. }
                 | Event::KeyDown {
@@ -26,10 +28,12 @@ impl InputDriver {
                 } => {
                     return Err(());
                 }
-                _ => {}
+                _ => {
+                    debug!("[InputDriver.process_events()] No matching event found.");
+                }
             };
         }
-
+        debug!("[InputDriver.process_events()] Started Reading Keys.");
         //process key presses
         let keys: Vec<Keycode> = self
             .event_pump
@@ -37,7 +41,7 @@ impl InputDriver {
             .pressed_scancodes()
             .filter_map(Keycode::from_scancode)
             .collect();
-        let mut chip8_keys = [false; 16];
+        let mut chip8_keys = vec![false; 16];
         for key in keys {
             let index = match key {
                 Keycode::Num1 => Some(0x1),
@@ -59,6 +63,7 @@ impl InputDriver {
                 _ => None,
             };
             if let Some(i) = index {
+                debug!("[InputDriver.process_events()] Some key = {} was read.", i);
                 chip8_keys[i] = true;
             }
         }

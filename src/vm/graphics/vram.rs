@@ -4,6 +4,7 @@
 #[derive(Debug)]
 pub struct VRam {
     pub cells: Vec<Vec<u8>>,
+    pub state_changed: bool,
 }
 
 impl VRam {
@@ -11,6 +12,7 @@ impl VRam {
     pub fn new(width: usize, height: usize) -> VRam {
         VRam {
             cells: vec![vec![0; width]; height],
+            state_changed: false,
         }
     }
 }

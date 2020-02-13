@@ -3,6 +3,8 @@
 /// `KeyBoard` : CHIP-8 has a HEX based keypad (0x0-0xF). It contains 16 keys.
 pub struct KeyBoard {
     pub keys: Vec<bool>,
+    pub keypress_awaited: bool,
+    pub key_register: usize,
 }
 
 impl KeyBoard {
@@ -10,6 +12,8 @@ impl KeyBoard {
     pub fn new() -> KeyBoard {
         KeyBoard {
             keys: vec![false; 16],
+            keypress_awaited: false,
+            key_register: 0,
         }
     }
     /// `KeyBoard.key_down()` will set key value to true, indicating the key is DOWN.

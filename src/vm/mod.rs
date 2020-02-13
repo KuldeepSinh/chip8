@@ -12,6 +12,7 @@ mod timers;
 
 use graphics::vram::VRam;
 use keyboard::KeyBoard;
+use log::debug;
 use memory::Memory;
 use operator::Operator;
 use registers::Registers;
@@ -20,6 +21,12 @@ use timers::Timers;
 
 const VRAM_WIDTH: usize = 64;
 const VRAM_HEIGHT: usize = 32;
+
+#[derive(Debug)]
+pub struct OutputState<'a> {
+    pub vram: &'a VRam,
+    pub play_sound: bool,
+}
 
 pub struct Machine {
     pub vram: VRam,
@@ -52,12 +59,36 @@ impl Machine {
         Operator::get_operators(&self)
     }
 
-    pub fn execute_instruction(&mut self) {
-        instructions::execute_00e0(self);
-        instructions::execute_00ee(self);
+    pub fn process_keys(&mut self, keys: Vec<bool>) -> OutputState {
+        debug!("[Machine.process_keys()] The machine started processing keys.");
+        self.vram.state_changed = false;
+        self.keyboard.keys = keys;
+
+        if self.keyboard.keypress_awaited {
+            for (i, &key) in self.keyboard.keys.iter().enumerate() {
+                if key {
+                    self.keyboard.keypress_awaited = false;
+                    self.registers.v[self.keyboard.key_register] = i as u8;
+                    break;
+                }
+            }
+        } else {
+            if self.timers.st > 0 {
+                self.timers.st -= 1;
+            }
+            if self.timers.dt > 0 {
+                self.timers.dt -= 1;
+            }
+            self.emulate_cycle();
+        }
+
+        OutputState {
+            vram: &self.vram,
+            play_sound: false,
+        }
     }
 
-    pub fn emulate_cycle(&mut self) {
+    fn emulate_cycle(&mut self) {
         let machine = self;
         let operator = machine.get_operators();
         match (

@@ -1,6 +1,6 @@
 use crate::vm::operator::Operator;
 use crate::vm::Machine;
-use log::info;
+use log::debug;
 use rand::Rng;
 
 //pub fn execute_0nnn() {}
@@ -9,7 +9,7 @@ use rand::Rng;
 /// Type = Display
 /// Explanation = Clears the screen.
 pub fn execute_00e0(machine: &mut Machine) {
-    info!("[execute_00e0()] Clearing display.");
+    debug!("[execute_00e0()] Clearing display.");
     let vram_height = machine.vram.cells.len();
     let vram_width = machine.vram.cells[0].len();
     for h in 0..vram_height {
@@ -17,14 +17,16 @@ pub fn execute_00e0(machine: &mut Machine) {
             machine.vram.cells[h][w] = 0;
         }
     }
-    info!("[execute_00e0()] Cleared display.");
+    machine.vram.state_changed = true;
+    machine.pc += 2;
+    debug!("[execute_00e0()] Cleared display.");
 }
 
 /// `instructions::execute_00ee()`
 /// Type = Flow
 /// Explanation = Returns from a subroutine.
 pub fn execute_00ee(machine: &mut Machine) {
-    info!("[execute_00ee] Returning from a subroutine. ");
+    debug!("[execute_00ee] Returning from a subroutine.");
     machine.pc = machine
         .stack
         .cells
@@ -36,6 +38,7 @@ pub fn execute_00ee(machine: &mut Machine) {
 /// Type = Flow
 /// Explanation = Jumps to address NNN.
 pub fn execute_1nnn(machine: &mut Machine, operator: &Operator) {
+    debug!("[execute_1nnn] Jumping to {}.", operator.nnn_address);
     machine.pc = operator.nnn_address;
 }
 
@@ -43,6 +46,10 @@ pub fn execute_1nnn(machine: &mut Machine, operator: &Operator) {
 /// Type = Flow
 /// Explanation = Calls subroutine at NNN.
 pub fn execute_2nnn(machine: &mut Machine, operator: &Operator) {
+    debug!(
+        "[execute_2nnn] Calling subroutine at {}.",
+        operator.nnn_address
+    );
     machine.stack.cells.push(machine.pc);
     machine.pc = operator.nnn_address;
 }
@@ -51,8 +58,9 @@ pub fn execute_2nnn(machine: &mut Machine, operator: &Operator) {
 /// Type = Condition
 /// Explanation = Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block).
 pub fn execute_3nnn(machine: &mut Machine, operator: &Operator) {
+    debug!("[execute_3nnn] PC may jump to {}.", operator.nnn_address);
     match operator.vx == operator.nn_const {
-        true => machine.pc += 2,
+        true => machine.pc += 4,
         false => machine.pc += 0,
     };
 }
@@ -62,7 +70,7 @@ pub fn execute_3nnn(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Skips the next instruction if VX doesn't equal NN. (Usually the next instruction is a jump to skip a code block).
 pub fn execute_4nnn(machine: &mut Machine, operator: &Operator) {
     match operator.vx != operator.nn_const {
-        true => machine.pc += 2,
+        true => machine.pc += 4,
         false => machine.pc += 0,
     };
 }
@@ -72,7 +80,7 @@ pub fn execute_4nnn(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Skips the next instruction if VX equals VY. (Usually the next instruction is a jump to skip a code block).
 pub fn execute_5xy0(machine: &mut Machine, operator: &Operator) {
     match operator.vx == operator.vy {
-        true => machine.pc += 2,
+        true => machine.pc += 4,
         false => machine.pc += 0,
     };
 }
@@ -82,6 +90,7 @@ pub fn execute_5xy0(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets VX to NN.
 pub fn execute_6xnn(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[operator.x] = operator.nn_const;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_7xnn()`
@@ -89,6 +98,7 @@ pub fn execute_6xnn(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Adds NN to VX. (Carry flag is not changed).
 pub fn execute_7xnn(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[operator.x] += operator.nn_const;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy0()`
@@ -96,6 +106,7 @@ pub fn execute_7xnn(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets VX to the value of VY.
 pub fn execute_8xy0(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[operator.x] = machine.registers.v[operator.y];
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy1()`
@@ -104,6 +115,7 @@ pub fn execute_8xy0(machine: &mut Machine, operator: &Operator) {
 pub fn execute_8xy1(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[operator.x] =
         machine.registers.v[operator.x] | machine.registers.v[operator.y];
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy2()`
@@ -112,6 +124,7 @@ pub fn execute_8xy1(machine: &mut Machine, operator: &Operator) {
 pub fn execute_8xy2(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[operator.x] =
         machine.registers.v[operator.x] & machine.registers.v[operator.y];
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy3()`
@@ -120,6 +133,7 @@ pub fn execute_8xy2(machine: &mut Machine, operator: &Operator) {
 pub fn execute_8xy3(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[operator.x] =
         machine.registers.v[operator.x] ^ machine.registers.v[operator.y];
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy4()`
@@ -133,6 +147,7 @@ pub fn execute_8xy4(machine: &mut Machine, operator: &Operator) {
         false => machine.registers.v[0xF] = 0,
     };
     machine.registers.v[operator.x] = result;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy5()`
@@ -146,6 +161,7 @@ pub fn execute_8xy5(machine: &mut Machine, operator: &Operator) {
         false => machine.registers.v[0xF] = 1,
     };
     machine.registers.v[operator.x] = result;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy6()`
@@ -154,6 +170,7 @@ pub fn execute_8xy5(machine: &mut Machine, operator: &Operator) {
 pub fn execute_8xy6(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[0xF] = machine.registers.v[operator.x] & 0x1;
     machine.registers.v[operator.x] >>= 1;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xy7()`
@@ -167,6 +184,7 @@ pub fn execute_8xy7(machine: &mut Machine, operator: &Operator) {
         false => machine.registers.v[0xF] = 1,
     };
     machine.registers.v[operator.x] = result;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_8xye()`
@@ -175,6 +193,7 @@ pub fn execute_8xy7(machine: &mut Machine, operator: &Operator) {
 pub fn execute_8xye(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[0xF] = machine.registers.v[operator.x] >> 7;
     machine.registers.v[operator.x] <<= 1;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_9xy0()`
@@ -182,7 +201,7 @@ pub fn execute_8xye(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Skips the next instruction if VX doesn't equal VY. (Usually the next instruction is a jump to skip a code block)
 pub fn execute_9xy0(machine: &mut Machine, operator: &Operator) {
     match operator.vx != operator.vy {
-        true => machine.pc += 2,
+        true => machine.pc += 4,
         false => machine.pc += 0,
     };
 }
@@ -192,6 +211,7 @@ pub fn execute_9xy0(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets I to the address NNN.
 pub fn execute_annn(machine: &mut Machine, operator: &Operator) {
     machine.i = operator.nnn_address;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_bnnn()`
@@ -207,6 +227,7 @@ pub fn execute_bnnn(machine: &mut Machine, operator: &Operator) {
 pub fn execute_cxnn(machine: &mut Machine, operator: &Operator) {
     let random_num = rand::thread_rng().gen_range(0x00, 0xFF + 1) as u8;
     machine.registers.v[operator.x] = random_num & operator.nn_const;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_cxnn()`
@@ -232,6 +253,8 @@ pub fn execute_dxyn(machine: &mut Machine, operator: &Operator) {
             machine.vram.cells[y][x] ^= color;
         }
     }
+    machine.vram.state_changed = true;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_ex9e()`
@@ -243,7 +266,7 @@ pub fn execute_ex9e(machine: &mut Machine, operator: &Operator) {
         .keyboard
         .is_key_down(machine.registers.v[operator.x])
     {
-        true => machine.pc += 2,
+        true => machine.pc += 4,
         false => machine.pc += 0,
     }
 }
@@ -258,7 +281,7 @@ pub fn execute_exa1(machine: &mut Machine, operator: &Operator) {
         .is_key_down(machine.registers.v[operator.x])
     {
         true => machine.pc += 0,
-        false => machine.pc += 2,
+        false => machine.pc += 4,
     };
 }
 
@@ -274,7 +297,9 @@ pub fn execute_fx07(machine: &mut Machine, operator: &Operator) {
 /// Explanation = A key press is awaited, and then stored in VX.
 /// (Blocking Operation. All instruction halted until next key event)
 pub fn execute_fx0a(machine: &mut Machine, operator: &Operator) {
-    //machine.keyboard.
+    machine.keyboard.keypress_awaited = true;
+    machine.keyboard.key_register = operator.x;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx15()`
@@ -282,6 +307,7 @@ pub fn execute_fx0a(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets the delay timer to VX.
 pub fn execute_fx15(machine: &mut Machine, operator: &Operator) {
     machine.timers.dt = machine.registers.v[operator.x];
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx18()`
@@ -289,6 +315,7 @@ pub fn execute_fx15(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets the sound timer to VX.
 pub fn execute_fx18(machine: &mut Machine, operator: &Operator) {
     machine.timers.st = machine.registers.v[operator.x];
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx1e()`
@@ -304,6 +331,7 @@ pub fn execute_fx1e(machine: &mut Machine, operator: &Operator) {
         false => machine.registers.v[0xF] = 0,
     };
     machine.i = result;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx29()`
@@ -312,6 +340,7 @@ pub fn execute_fx1e(machine: &mut Machine, operator: &Operator) {
 /// Characters 0-F (in hexadecimal) are represented by a 4x5 font.
 pub fn execute_fx29(machine: &mut Machine, operator: &Operator) {
     machine.i = machine.registers.v[operator.x] as u16 * 0x5;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx33()`
@@ -325,6 +354,7 @@ pub fn execute_fx33(machine: &mut Machine, operator: &Operator) {
     machine.memory.cells[machine.i as usize] = machine.registers.v[operator.x] / 100;
     machine.memory.cells[machine.i as usize + 1] = (machine.registers.v[operator.x] / 10) % 10;
     machine.memory.cells[machine.i as usize + 2] = (machine.registers.v[operator.x] % 100) % 10;
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx55()`
@@ -334,6 +364,7 @@ pub fn execute_fx33(machine: &mut Machine, operator: &Operator) {
 pub fn execute_fx55(machine: &mut Machine, operator: &Operator) {
     machine.memory.cells[(machine.i as usize)..(machine.i + operator.x as u16 + 1) as usize]
         .copy_from_slice(&machine.registers.v[0..(operator.x as usize + 1)]);
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx65()`
@@ -344,4 +375,5 @@ pub fn execute_fx65(machine: &mut Machine, operator: &Operator) {
     machine.registers.v[0..(operator.x as usize + 1)].copy_from_slice(
         &machine.memory.cells[(machine.i as usize)..(machine.i + operator.x as u16 + 1) as usize],
     );
+    machine.pc += 2;
 }

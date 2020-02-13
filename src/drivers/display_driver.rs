@@ -1,3 +1,4 @@
+use log::debug;
 use sdl2;
 use sdl2::pixels;
 use sdl2::rect::Rect;
@@ -21,14 +22,20 @@ impl DisplayDriver {
         //get canvas
         let canvas = DisplayDriver::get_canvas(window);
         //return
-        DisplayDriver { canvas: canvas }
+        DisplayDriver { canvas }
     }
 
     pub fn draw_canvas(&mut self, vram: &Vec<Vec<u8>>) {
+        debug!("[DisplayDriver.draw_canvas()] Started drawing canvas.");
         for (h, row) in vram.iter().enumerate() {
             for (w, col) in row.iter().enumerate() {
                 //set color to draw
-                self.canvas.set_draw_color(DisplayDriver::get_color(col));
+                let draw_color = DisplayDriver::get_color(col);
+                debug!(
+                    "[DisplayDriver.draw_canvas()] Draw color is {:?}.",
+                    draw_color
+                );
+                self.canvas.set_draw_color(draw_color);
                 //draw rectangle
                 let h = (h as u32) * SCALE_FACTOR;
                 let w = (w as u32) * SCALE_FACTOR;
@@ -38,6 +45,7 @@ impl DisplayDriver {
             }
         }
         self.canvas.present();
+        debug!("[DisplayDriver.draw_canvas()] Done with drawing canvas.");
     }
 }
 
@@ -70,7 +78,7 @@ impl DisplayDriver {
     fn get_color(pixel: &u8) -> pixels::Color {
         match pixel {
             0 => pixels::Color::RGB(0, 0, 0),
-            _ => pixels::Color::RGB(0, 0, 255),
+            _ => pixels::Color::RGB(0, 255, 0),
         }
     }
 }
