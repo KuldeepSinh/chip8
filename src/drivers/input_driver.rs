@@ -1,4 +1,4 @@
-use log::{debug, info};
+use log::info;
 use sdl2;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -33,7 +33,7 @@ impl InputDriver {
                 }
             };
         }
-        debug!("[InputDriver.process_events()] Started Reading Keys.");
+        info!("[InputDriver.process_events()] Started Reading Keys.");
         //process key presses
         let keys: Vec<Keycode> = self
             .event_pump
@@ -63,7 +63,7 @@ impl InputDriver {
                 _ => None,
             };
             if let Some(i) = index {
-                debug!("[InputDriver.process_events()] Some key = {} was read.", i);
+                info!("[InputDriver.process_events()] Some key = {} was read.", i);
                 chip8_keys[i] = true;
             }
         }

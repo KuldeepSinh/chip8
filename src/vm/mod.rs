@@ -12,7 +12,7 @@ mod timers;
 
 use graphics::vram::VRam;
 use keyboard::KeyBoard;
-use log::debug;
+use log::info;
 use memory::Memory;
 use operator::Operator;
 use registers::Registers;
@@ -60,7 +60,7 @@ impl Machine {
     }
 
     pub fn process_keys(&mut self, keys: Vec<bool>) -> OutputState {
-        debug!("[Machine.process_keys()] The machine started processing keys.");
+        info!("[Machine.process_keys()] The machine started processing keys.");
         self.vram.state_changed = false;
         self.keyboard.keys = keys;
 
@@ -69,7 +69,6 @@ impl Machine {
                 if key {
                     self.keyboard.keypress_awaited = false;
                     self.registers.v[self.keyboard.key_register] = i as u8;
-                    self.pc += 2;
                     break;
                 }
             }

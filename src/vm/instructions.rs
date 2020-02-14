@@ -26,21 +26,19 @@ pub fn execute_00e0(machine: &mut Machine) {
 /// Type = Flow
 /// Explanation = Returns from a subroutine.
 pub fn execute_00ee(machine: &mut Machine) {
-    info!("[execute_00ee] Returning from a subroutine.");
-    info!("[execute_00ee] PC before returning {}.", machine.pc);
+    info!("[execute_00ee]");
     machine.pc = machine
         .stack
         .cells
         .pop()
         .expect("Returning from the subroutine is impossible, because the Stack is empty.");
-    info!("[execute_00ee] PC after returning {}.", machine.pc);
 }
 
 /// `instructions::execute_1nnn()`
 /// Type = Flow
 /// Explanation = Jumps to address NNN.
 pub fn execute_1nnn(machine: &mut Machine, operator: &Operator) {
-    info!("[execute_1nnn] Jumping to {}.", operator.nnn_address);
+    info!("[execute_1nnn]");
     machine.pc = operator.nnn_address;
 }
 
@@ -48,14 +46,9 @@ pub fn execute_1nnn(machine: &mut Machine, operator: &Operator) {
 /// Type = Flow
 /// Explanation = Calls subroutine at NNN.
 pub fn execute_2nnn(machine: &mut Machine, operator: &Operator) {
-    info!(
-        "[execute_2nnn] Calling subroutine at {}.",
-        operator.nnn_address
-    );
-    info!("[execute_00ee] PC before jumping {}.", machine.pc);
+    info!("[execute_2nnn]");
     machine.stack.cells.push(machine.pc + 2);
     machine.pc = operator.nnn_address;
-    info!("[execute_00ee] PC after jumping {}.", machine.pc);
 }
 
 /// `instructions::execute_3nnn()`
@@ -151,6 +144,7 @@ pub fn execute_8xy3(machine: &mut Machine, operator: &Operator) {
 /// Type = Math
 /// Explanation = Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
 pub fn execute_8xy4(machine: &mut Machine, operator: &Operator) {
+    info!("[execute_8xy4]");
     let (result, overflow) =
         machine.registers.v[operator.x].overflowing_add(machine.registers.v[operator.y]);
     match overflow {
@@ -244,8 +238,7 @@ pub fn execute_bnnn(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets VX to the result of a bitwise and operation on a random number (Typically: 0 to 255) and NN.
 pub fn execute_cxnn(machine: &mut Machine, operator: &Operator) {
     info!("[execute_cxnn]");
-    let random_num = rand::thread_rng().gen_range(0x00, 0xFF + 1) as u8;
-    machine.registers.v[operator.x] = random_num & operator.nn_const;
+    machine.registers.v[operator.x] = operator.nn_const & rand::thread_rng().gen::<u8>();
     machine.pc += 2;
 }
 
@@ -261,11 +254,10 @@ pub fn execute_cxnn(machine: &mut Machine, operator: &Operator) {
 /// and set to 0 otherwise. This is used for collision detection.
 pub fn execute_dxyn(machine: &mut Machine, operator: &Operator) {
     info!("[execute_dxyn]");
-    let vram_height = machine.vram.cells.len();
-    info!("VRAM Height = {}.", vram_height);
-    let vram_width = machine.vram.cells[0].len();
-    info!("VRAM Width = {}.", vram_width);
     machine.registers.v[0xF] = 0;
+
+    let vram_height = machine.vram.cells.len();
+    let vram_width = machine.vram.cells[0].len();
     for byte in 0..operator.n_const {
         let y = (machine.registers.v[operator.y] as usize + byte as usize) % vram_height;
         for bit in 0..8 {
@@ -326,8 +318,7 @@ pub fn execute_fx0a(machine: &mut Machine, operator: &Operator) {
     info!("[execute_fx0a]");
     machine.keyboard.keypress_awaited = true;
     machine.keyboard.key_register = operator.x;
-    //machine.pc += 2;
-    info!("Program Counter = {}", machine.pc);
+    machine.pc += 2;
 }
 
 /// `instructions::execute_fx15()`
@@ -352,7 +343,7 @@ pub fn execute_fx18(machine: &mut Machine, operator: &Operator) {
 /// Type = Memory
 /// Explanation = Adds VX to I. VF is set to 1 when there is a range overflow (I+VX>0xFFF), and to 0 when there isn't.
 pub fn execute_fx1e(machine: &mut Machine, operator: &Operator) {
-    //machine.i += machine.registers.v[operator.x]
+    info!("[execute_fx1e]");
     let (result, overflow) = machine
         .i
         .overflowing_add(machine.registers.v[operator.x] as u16);
@@ -395,8 +386,8 @@ pub fn execute_fx33(machine: &mut Machine, operator: &Operator) {
 /// The offset from I is increased by 1 for each value written, but I itself is left unmodified.
 pub fn execute_fx55(machine: &mut Machine, operator: &Operator) {
     info!("[execute_fx55]");
-    machine.memory.cells[(machine.i as usize)..(machine.i + operator.x as u16) as usize]
-        .copy_from_slice(&machine.registers.v[0..(operator.x as usize)]);
+    machine.memory.cells[(machine.i as usize)..(machine.i + (operator.x + 1) as u16) as usize]
+        .copy_from_slice(&machine.registers.v[0..((operator.x + 1) as usize)]);
     machine.pc += 2;
 }
 
@@ -406,8 +397,8 @@ pub fn execute_fx55(machine: &mut Machine, operator: &Operator) {
 /// The offset from I is increased by 1 for each value written, but I itself is left unmodified.[d]
 pub fn execute_fx65(machine: &mut Machine, operator: &Operator) {
     info!("[execute_fx65]");
-    machine.registers.v[0..(operator.x as usize)].copy_from_slice(
-        &machine.memory.cells[(machine.i as usize)..(machine.i + operator.x as u16) as usize],
+    machine.registers.v[0..((operator.x + 1) as usize)].copy_from_slice(
+        &machine.memory.cells[(machine.i as usize)..(machine.i + (operator.x + 1) as u16) as usize],
     );
     machine.pc += 2;
 }
