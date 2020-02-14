@@ -60,6 +60,10 @@ impl InputDriver {
                 Keycode::X => Some(0x0),
                 Keycode::C => Some(0xb),
                 Keycode::V => Some(0xf),
+                Keycode::Up => Some(0x2),
+                Keycode::Down => Some(0x8),
+                Keycode::Left => Some(0x4),
+                Keycode::Right => Some(0x6),
                 _ => None,
             };
             if let Some(i) = index {

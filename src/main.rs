@@ -4,17 +4,22 @@ extern crate log;
 use chip8::drivers::Drivers;
 use chip8::vm::Machine;
 use log::{debug, info};
+use std::env;
 use std::thread;
 use std::time::Duration;
 
 fn main() {
     env_logger::init();
+    //Read from commandline.
+    let args: Vec<String> = env::args().collect();
+    let filename = &args[1];
+
     //initialize
     debug!("[main()] Initializing the Machine.");
     let mut machine: Machine = Machine::new();
     debug!("[main()] Initializing Drivers.");
     let mut drivers: Drivers = Drivers::init_drivers();
-    drivers.rom_reader.read_rom("./ROMs/UFO");
+    drivers.rom_reader.read_rom(filename);
 
     //load ROM in memory
     debug!("[main()] Loding ROM in memory.");
