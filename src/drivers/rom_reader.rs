@@ -8,12 +8,17 @@ pub struct RomReader {
 }
 
 impl RomReader {
-    pub fn new(filename: &str) -> Self {
-        debug!("[RomReader::new()] Going to read {}.", filename);
-        let mut f = File::open(filename).expect("file not found");
-        let mut rom = [0u8; 3584];
+    pub fn new() -> Self {
+        RomReader {
+            size: 0,
+            rom: [0u8; 3584],
+        }
+    }
 
-        let bytes_read = match f.read(&mut rom) {
+    pub fn read_rom(&mut self, filename: &str) {
+        debug!("[RomReader.read_rom()] Going to read {}.", filename);
+        let mut f = File::open(filename).expect("file not found");
+        self.size = match f.read(&mut self.rom) {
             Ok(bytes_read) => {
                 debug!("[RomReader::new()] bytes read = {}.", bytes_read);
                 bytes_read
@@ -23,9 +28,5 @@ impl RomReader {
                 0
             }
         };
-        RomReader {
-            rom: rom,
-            size: bytes_read,
-        }
     }
 }

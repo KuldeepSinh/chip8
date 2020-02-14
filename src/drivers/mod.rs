@@ -14,13 +14,13 @@ pub struct Drivers {
 }
 
 impl Drivers {
-    pub fn init_drivers(filename: &str) -> Drivers {
+    pub fn init_drivers() -> Drivers {
         let sdl_context = Drivers::init_sdl_context();
         //return
         Drivers {
             display_driver: DisplayDriver::new(&sdl_context, 64, 32),
             input_driver: InputDriver::new(&sdl_context),
-            rom_reader: RomReader::new(filename),
+            rom_reader: RomReader::new(),
         }
     }
 

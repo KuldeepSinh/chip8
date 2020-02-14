@@ -9,26 +9,17 @@ use std::time::Duration;
 
 fn main() {
     env_logger::init();
-    println!("Hello, world!");
-
-    //  while (true)
-    // {
-    //   processInput();
-    //   update();
-    //   render();
-    //   sleep();
-    // }
-
     //initialize
     debug!("[main()] Initializing the machine.");
     let mut machine: Machine = Machine::new();
     debug!("[main()] Initializing Drivers.");
-    let mut drivers: Drivers = Drivers::init_drivers("./ROMs/BRIX");
+    let mut drivers: Drivers = Drivers::init_drivers();
+    drivers.rom_reader.read_rom("./ROMs/BRIX");
+
     //load ROM in memory
     debug!("[main()] Loding ROM in memory.");
     machine.memory.load_data(&drivers.rom_reader.rom);
-    //may be following line will not be needed.
-    drivers.display_driver.draw_canvas(&machine.vram.cells);
+
     //while true
     debug!("[main()] Listening to key-board events.");
     while let Ok(keys) = drivers.input_driver.process_events() {
@@ -36,8 +27,6 @@ fn main() {
         let output_state = machine.process_keys(keys);
         //update
         if output_state.vram.state_changed {
-            debug!("[main()] Ouput state changed {:?}.", output_state);
-            debug!("[main()] ***************************************");
             drivers.display_driver.draw_canvas(&output_state.vram.cells);
         }
         if output_state.play_sound {
