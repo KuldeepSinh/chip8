@@ -10,7 +10,7 @@ use std::time::Duration;
 fn main() {
     env_logger::init();
     //initialize
-    debug!("[main()] Initializing the machine.");
+    debug!("[main()] Initializing the Machine.");
     let mut machine: Machine = Machine::new();
     debug!("[main()] Initializing Drivers.");
     let mut drivers: Drivers = Drivers::init_drivers();
@@ -32,7 +32,6 @@ fn main() {
         if output_state.play_sound {
             debug!("[main()] One day it will beep!");
         }
-        //render
         //sleep 60 frames per second
         //thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
         thread::sleep(Duration::from_millis(2));

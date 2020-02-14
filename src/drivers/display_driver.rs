@@ -13,14 +13,19 @@ pub struct DisplayDriver {
 
 impl DisplayDriver {
     pub fn new(sdl_context: &sdl2::Sdl, width: usize, height: usize) -> Self {
-        //get window
-        let window = DisplayDriver::get_window(
+        //create a window
+        let window = DisplayDriver::create_window(
             sdl_context,
             width * (SCALE_FACTOR as usize),
             height * (SCALE_FACTOR as usize),
         );
-        //get canvas
-        let canvas = DisplayDriver::get_canvas(window);
+
+        //create a canvas
+        let mut canvas = DisplayDriver::create_canvas(window);
+        canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
+        canvas.clear();
+        canvas.present();
+
         //return
         DisplayDriver { canvas }
     }
@@ -30,13 +35,9 @@ impl DisplayDriver {
         for (h, row) in vram.iter().enumerate() {
             for (w, col) in row.iter().enumerate() {
                 //set color to draw
-                let draw_color = DisplayDriver::get_color(col);
-                debug!(
-                    "[DisplayDriver.draw_canvas()] Draw color is {:?}.",
-                    draw_color
-                );
-                self.canvas.set_draw_color(draw_color);
-                //draw rectangle
+                self.canvas.set_draw_color(DisplayDriver::get_color(col));
+
+                //draw a rectangle for each pixel
                 let h = (h as u32) * SCALE_FACTOR;
                 let w = (w as u32) * SCALE_FACTOR;
                 self.canvas
@@ -51,7 +52,7 @@ impl DisplayDriver {
 
 //private methods
 impl DisplayDriver {
-    fn get_window(sdl_context: &sdl2::Sdl, width: usize, height: usize) -> Window {
+    fn create_window(sdl_context: &sdl2::Sdl, width: usize, height: usize) -> Window {
         //video sub-system
         let video_subsystem = sdl_context
             .video()
@@ -67,7 +68,7 @@ impl DisplayDriver {
         window
     }
 
-    fn get_canvas(window: Window) -> Canvas<Window> {
+    fn create_canvas(window: Window) -> Canvas<Window> {
         //build canvas
         let canvas = window
             .into_canvas()
@@ -75,6 +76,7 @@ impl DisplayDriver {
             .expect("Error: Could not build canvas.");
         canvas
     }
+
     fn get_color(pixel: &u8) -> pixels::Color {
         match pixel {
             0 => pixels::Color::RGB(0, 0, 0),
