@@ -1,4 +1,4 @@
-use log::debug;
+use log::{debug, info};
 use sdl2;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -19,7 +19,7 @@ impl InputDriver {
     pub fn process_events(&mut self) -> Result<Vec<bool>, ()> {
         //Quit if user wants to quit
         for event in self.event_pump.poll_iter() {
-            debug!("[InputDriver.process_events()] Started processing events.");
+            info!("[InputDriver.process_events()] Started processing events.");
             match event {
                 Event::Quit { .. }
                 | Event::KeyDown {
@@ -29,7 +29,7 @@ impl InputDriver {
                     return Err(());
                 }
                 _ => {
-                    debug!("[InputDriver.process_events()] No matching event found.");
+                    info!("[InputDriver.process_events()] No matching event found.");
                 }
             };
         }

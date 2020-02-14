@@ -53,15 +53,16 @@ pub fn execute_2nnn(machine: &mut Machine, operator: &Operator) {
         operator.nnn_address
     );
     info!("[execute_00ee] PC before jumping {}.", machine.pc);
-    machine.stack.cells.push(machine.pc);
+    machine.stack.cells.push(machine.pc + 2);
     machine.pc = operator.nnn_address;
+    info!("[execute_00ee] PC after jumping {}.", machine.pc);
 }
 
 /// `instructions::execute_3nnn()`
 /// Type = Condition
 /// Explanation = Skips the next instruction if VX equals NN. (Usually the next instruction is a jump to skip a code block).
 pub fn execute_3nnn(machine: &mut Machine, operator: &Operator) {
-    info!("[execute_3nnn] PC may jump to {}.", operator.nnn_address);
+    info!("[execute_3nnn]");
     match operator.vx == operator.nn_const {
         true => machine.pc += 4,
         false => machine.pc += 2,
@@ -124,8 +125,7 @@ pub fn execute_8xy0(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets VX to VX or VY. (Bitwise OR operation)
 pub fn execute_8xy1(machine: &mut Machine, operator: &Operator) {
     info!("[execute_8xy1]");
-    machine.registers.v[operator.x] =
-        machine.registers.v[operator.x] | machine.registers.v[operator.y];
+    machine.registers.v[operator.x] |= machine.registers.v[operator.y];
     machine.pc += 2;
 }
 
@@ -134,8 +134,7 @@ pub fn execute_8xy1(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets VX to VX and VY. (Bitwise AND operation)
 pub fn execute_8xy2(machine: &mut Machine, operator: &Operator) {
     info!("[execute_8xy2]");
-    machine.registers.v[operator.x] =
-        machine.registers.v[operator.x] & machine.registers.v[operator.y];
+    machine.registers.v[operator.x] &= machine.registers.v[operator.y];
     machine.pc += 2;
 }
 
@@ -144,8 +143,7 @@ pub fn execute_8xy2(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Sets VX to VX xor VY.
 pub fn execute_8xy3(machine: &mut Machine, operator: &Operator) {
     info!("[execute_8xy3]");
-    machine.registers.v[operator.x] =
-        machine.registers.v[operator.x] ^ machine.registers.v[operator.y];
+    machine.registers.v[operator.x] ^= machine.registers.v[operator.y];
     machine.pc += 2;
 }
 
@@ -208,7 +206,7 @@ pub fn execute_8xy7(machine: &mut Machine, operator: &Operator) {
 /// Explanation = Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
 pub fn execute_8xye(machine: &mut Machine, operator: &Operator) {
     info!("[execute_8xye]");
-    machine.registers.v[0xF] = machine.registers.v[operator.x] >> 7;
+    machine.registers.v[0xF] = (machine.registers.v[operator.x] & 0b10000000) >> 7;
     machine.registers.v[operator.x] <<= 1;
     machine.pc += 2;
 }
@@ -264,13 +262,15 @@ pub fn execute_cxnn(machine: &mut Machine, operator: &Operator) {
 pub fn execute_dxyn(machine: &mut Machine, operator: &Operator) {
     info!("[execute_dxyn]");
     let vram_height = machine.vram.cells.len();
+    info!("VRAM Height = {}.", vram_height);
     let vram_width = machine.vram.cells[0].len();
+    info!("VRAM Width = {}.", vram_width);
     machine.registers.v[0xF] = 0;
     for byte in 0..operator.n_const {
         let y = (machine.registers.v[operator.y] as usize + byte as usize) % vram_height;
         for bit in 0..8 {
             let x = (machine.registers.v[operator.x] as usize + bit as usize) % vram_width;
-            let color = machine.memory.cells[machine.i as usize + byte as usize] >> (7 - bit) & 1;
+            let color = (machine.memory.cells[machine.i as usize + byte as usize] >> (7 - bit)) & 1;
             machine.registers.v[0xF] |= color & machine.vram.cells[y][x];
             machine.vram.cells[y][x] ^= color;
         }
