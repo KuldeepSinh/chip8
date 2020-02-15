@@ -10,7 +10,7 @@ These were the most useful chip-8 references I found.
 
 ## Requirements
 
-You need to have sdl2 installed with headers. On Ubuntu 17.04, this did the trick:
+You need to have sdl2 installed with headers. On Ubuntu 19.20 it can be installed as follows:
 
 ```
 sudo apt-get install libsdl2-dev libsdl2-gfx-dev
