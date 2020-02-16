@@ -18,4 +18,4 @@ sudo apt-get install libsdl2-dev libsdl2-gfx-dev
 
 ## Credits
 
-Starr Horne ([CHIP8-Rust](https://github.com/starrhorne/chip8-rust)) for writing well-structured code.
+Starr Horne for [CHIP8-Rust](https://github.com/starrhorne/chip8-rust).
