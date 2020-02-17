@@ -39,7 +39,7 @@ fn main() {
         if output_state.play_sound {
             debug!("[main()] One day it will beep!");
         }
-        //sleep 60 frames per second
+        
         thread::sleep(Duration::from_millis(2));
     }
 }
